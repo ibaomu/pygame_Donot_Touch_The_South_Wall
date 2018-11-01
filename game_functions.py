@@ -192,8 +192,9 @@ def update_screen(ai_settings,screen,ship,bullets,aliens,stats,play_button,sb):
             bullet.draw_bullet()
         ship.blitme()
         aliens.draw(screen)
-        #显示得分
+        #显示得分和南墙
         sb.show_score()
+        sb.prep_wall()
         #如果游戏处于非活动状态，就绘制按钮
         if not stats.game_active:
             play_button.draw_button()
@@ -209,7 +210,7 @@ def update_bullets(bullets,aliens,ai_settings,screen,ship,stats,sb):
             bullets.remove(bullet)
     check_bullet_alien_cllisions(ai_settings,aliens,bullets,
                                  screen,ship,stats,sb)
-     
+  
 def update_aliens(aliens,ai_settings,ship,screen,bullets,stats,sb):
     """检查是否有外星人在屏幕边缘，并更新外星人群中所有外星人的位置"""
     check_fleet_edges(aliens,ai_settings)#对齐参数啊！！！！！！！！！！

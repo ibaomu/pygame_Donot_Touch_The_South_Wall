@@ -23,7 +23,7 @@ class Ship(Sprite):
         
         #将每艘新飞船放在南墙顶部中央
         self.rect.centerx = self.screen_rect.centerx
-        self.rect.bottom = self.screen_rect.bottom       
+        self.rect.bottom = self.screen_rect.bottom - 10     
         #移动标志
         self.moving_right = False
         self.moving_left = False        
@@ -42,4 +42,4 @@ class Ship(Sprite):
     def center_ship(self):
         """让飞船在屏幕底端居中"""
         self.rect.centerx = self.screen_rect.centerx
-        self.rect.bottom = self.screen_rect.bottom
+        self.rect.bottom = self.screen_rect.bottom - 10

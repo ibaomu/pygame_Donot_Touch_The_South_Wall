@@ -18,15 +18,30 @@ class Scoreboard():
         self.ai_settings = ai_settings
         self.stats = stats
         
+        
+        #加载南墙的图像并获取其外接矩形
+        self.wall_image = pygame.image.load('images/wall.png')        
+        self.wall_rect = self.wall_image.get_rect()
+        
+        #将南墙放在屏幕底部
+        self.wall_rect.centerx = self.screen_rect.centerx
+        self.wall_rect.bottom = self.screen_rect.bottom 
+        
+        
+        
+        
+        
+        
         #显示得分信息时使用的字体设置
         self.text_color = (30,30,30)
         self.font = pygame.font.SysFont("kaiti",19)
         
-        #准备包含最高得分和当前得分以及等级的图像
+        #准备包含最高得分、当前得分、等级以及南墙的图像
         self.prep_score()
         self.prep_high_score()
         self.prep_level()
         self.prep_ships()
+        self.prep_wall()
         
     def prep_score(self):
         """将得分转换为一幅渲染的图像"""
@@ -77,5 +92,7 @@ class Scoreboard():
             ship.rect.x = 10 + ship_number * ship.rect.width
             ship.rect.y = 10
             self.ships.add(ship)
-
+    def prep_wall(self):
+        """在指定位置绘制南墙"""
+        self.screen.blit(self.wall_image,self.wall_rect)
         
