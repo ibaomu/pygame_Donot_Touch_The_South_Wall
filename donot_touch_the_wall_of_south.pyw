@@ -19,12 +19,14 @@ from assassin import Ship
 
 #获取玩家电脑屏幕尺寸！！！
 
+
+
 def run_game():
     #初始化游戏并创建一个屏幕对象
     pygame.init()
     ai_settings = Settings()
     screen = pygame.display.set_mode(
-        (ai_settings.screen_width,ai_settings.screen_height))
+        (ai_settings.screen_width,ai_settings.screen_height),pygame.RESIZABLE)
         #窗口标题
     pygame.display.set_caption("Donot_Touch_The_Wall_Of_South")
     

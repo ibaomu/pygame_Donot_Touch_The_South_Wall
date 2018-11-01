@@ -4,14 +4,15 @@ Created on Fri Oct 19 13:40:45 2018
 
 @author: 某树
 """
+import ctypes
 
 class Settings():
     """存储《别碰南墙》的所有设置的类"""
     def __init__(self):
         """初始化游戏的静态设置"""
         #屏幕设置
-        self.screen_width = 1200
-        self.screen_height = 639
+        self.screen_width = ctypes.windll.user32.GetSystemMetrics(0)
+        self.screen_height = ctypes.windll.user32.GetSystemMetrics(1) - 59
         self.bg_color = (242,167,220)#根据对象颜色设置背景色。可以抠图吧
         self.ship_limit = 3
         #子弹设置
