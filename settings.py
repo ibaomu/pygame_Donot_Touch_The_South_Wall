@@ -16,7 +16,7 @@ class Settings():
         self.bg_color = (242,167,220)#根据对象颜色设置背景色。可以抠图吧
         self.ship_limit = 3
         #子弹设置
-        self.bullet_width = 399
+        self.bullet_width = 666
         self.bullet_height = 13
         self.bullet_color = 60,60,60 #啥颜色？
         self.bullet_allowed = 4

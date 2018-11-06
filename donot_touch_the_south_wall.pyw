@@ -8,6 +8,7 @@ Created on Fri Oct 19 13:01:10 2018
 import pygame
 import game_functions as gf
 
+from boss import Boss
 from scoreboard import Scoreboard
 from button import Button
 from game_stats import GameStats
@@ -20,6 +21,7 @@ from assassin import Ship
 #获取玩家电脑屏幕尺寸！！！
 
 
+#pygame.image.load(images/).convert()
 
 def run_game():
     #初始化游戏并创建一个屏幕对象
@@ -28,7 +30,7 @@ def run_game():
     screen = pygame.display.set_mode(
         (ai_settings.screen_width,ai_settings.screen_height),pygame.RESIZABLE)
         #窗口标题
-    pygame.display.set_caption("Donot_Touch_The_Wall_Of_South")
+    pygame.display.set_caption("别撞南墙")
     
     #创建存储游戏统计信息的实力，并创建记分牌
     stats = GameStats(ai_settings)
@@ -36,9 +38,7 @@ def run_game():
     #创舰一艘飞船、一个子弹编组、一个外星人编组
     bullets = Group()
     ship = Ship(ai_settings,screen)
-
-
-
+    boss = Boss(ai_settings,screen)
     aliens = Group()
     #创建外星人群
     gf.create_fleet(ai_settings,screen,ship,aliens)
@@ -52,12 +52,13 @@ def run_game():
                         stats,play_button,aliens,sb)
         
         if stats.game_active:
-            ship.update()
-            gf.update_bullets(bullets,aliens,ai_settings,screen,ship,stats,sb)
-            gf.update_aliens(aliens,ai_settings,ship,screen,bullets,stats,sb)
             
+            ship.update()
+            gf.update_bullets(bullets,aliens,ai_settings,screen,ship,stats,sb,boss)
+            gf.update_aliens(aliens,ai_settings,ship,screen,bullets,stats,sb,boss)
+            gf.update_boss(boss,screen,stats,aliens,ai_settings,ship,bullets,sb)
         gf.update_screen(ai_settings,screen,ship,bullets,aliens,
-                         stats,play_button,sb)
+                         stats,play_button,sb,boss)
         
         
 run_game()

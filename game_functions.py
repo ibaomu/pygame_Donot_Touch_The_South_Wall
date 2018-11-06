@@ -13,30 +13,34 @@ from time import sleep
 from enemy import Alien
 from weapon import Bullets
 
-     
-def ship_ruin(aliens,ai_settings,ship,screen,bullets,stats,sb):
-    """响应被外星人撞到的飞船"""
+
+def ship_ruin(aliens,ai_settings,ship,screen,bullets,stats,sb,boss):
+    """响应被敌人撞到的飞船"""
     
     if stats.ships_left > 0:
         stats.ships_left -= 1
         
-        #更新记分牌
+        #更新记分牌的剩余生命
         sb.prep_ships()
         #清空外星人列表和子弹列表
         aliens.empty()
         bullets.empty()
-        #创建一群新的外星人，并将飞船放到屏幕底端中央
-        create_fleet(ai_settings,screen,ship,aliens)
-        ship.center_ship()
-
         #暂停
         sleep(0.5)
+        #创建一群新的外星人，并将飞船和高富帅重置为初始位置
+        create_fleet(ai_settings,screen,ship,aliens)
+        ship.center_ship()
+        #重置boss的位置为初始位置
+        boss.rect.x = ai_settings.screen_width / 2
+        boss.rect.y = 30
+        
+        
     else:
         stats.game_active = False
         pygame.mouse.set_visible(True)
     
 def get_number_aliens_x(ai_settings,alien_width):
-    """计算每行可容纳多少外星人"""
+    """计算每行可容纳多少敌人"""
     available_space_x = ai_settings.screen_width - 2 * alien_width
     number_aliens_x = int(available_space_x / (2* alien_width))
     return number_aliens_x
@@ -137,36 +141,39 @@ def check_fleet_edges(aliens,ai_settings):
             break
 
 def check_bullet_alien_cllisions(ai_settings,aliens,bullets,
-                                 screen,ship,stats,sb):
-    """响应子弹和外星人的碰撞"""
-    collisions = pygame.sprite.groupcollide(aliens,bullets,True,True)#对齐参数
+                                 screen,ship,stats,sb,boss):
+    """响应子弹和敌人的碰撞"""
+    #精灵组碰撞，返回的字典是以第二个组的值作为项目，之前两个组位置搞反了
+    #经验告诉我，千万不要随意更改参数的位置，千万要看库文档！！！
+    collisions = pygame.sprite.groupcollide(bullets,aliens,True,True)#对齐参数
     if collisions:
         for aliens in collisions.values():#aliens是碰撞检测中子弹碰到的所有敌人
             stats.score += ai_settings.alien_points * len(aliens)
         stats.score += ai_settings.alien_points
         sb.prep_score()
     check_high_score(stats,sb)
-    if len(aliens) == 0:
+    #如果敌人被清空，且不是boss出场的清空，则提升游戏进度
+    if  len(aliens) == 0 and stats.level % 3 != 0:
         #清空现有子弹，加快游戏节奏，并创建一群新的外星人
-        #如果整群外星人都被消灭，就提升一个等级
-        bullets.empty()#为啥清空子弹？
+        bullets.empty()#清空子弹以便新一轮进攻的火力完备
         ai_settings.increase_speed()
-        #提升等级
+        #提升等级,更新记分板信息
         stats.level += 1
         sb.prep_level()
         sb.prep_ships()
-        
         create_fleet(ai_settings,screen,ship,aliens)
-
-def check_aliens_bottom(ai_settings,stats,screen,ship,aliens,bullets,sb):
-    """检查是否有外星人到达了屏幕底端"""
+   
+def check_aliens_bottom(ai_settings,stats,screen,ship,aliens,bullets,sb,boss):
+    """检查是否有敌人或者boss到达了屏幕底端"""
     screen_rect = screen.get_rect()
     for alien in aliens.sprites():
         if alien.rect.bottom >= screen_rect.bottom:
             #像飞船被撞到一样进行处理
-            ship_ruin(aliens,ai_settings,ship,screen,bullets,stats,sb)
+            ship_ruin(aliens,ai_settings,ship,screen,bullets,stats,sb,boss)
             break
-
+    if boss.rect.bottom >= screen_rect.bottom:
+        ship_ruin(aliens,ai_settings,ship,screen,bullets,stats,sb,boss)
+        
 def check_high_score(stats,sb):
     """检查是否诞生了新的最高分"""
     if stats.score > stats.high_score:
@@ -183,14 +190,19 @@ def change_fleet_director(ai_settings,aliens):
     for alien in aliens.sprites():
         alien.rect.y += ai_settings.fleet_drop_speed
     ai_settings.fleet_direction *= -1
-        
-def update_screen(ai_settings,screen,ship,bullets,aliens,stats,play_button,sb):
+
+def update_screen(ai_settings,screen,ship,bullets,aliens,stats,
+                  play_button,sb,boss):
            #每次循环时都重绘屏幕
         screen.fill(ai_settings.bg_color)
         #在飞船和外星人后面重绘所有子弹
         for bullet in bullets.sprites():
             bullet.draw_bullet()
         ship.blitme()
+        #每提升指定级数出现高富帅，小兵清空不出现
+        if stats.level % 3 == 0:
+            aliens.empty()
+            boss.blit_boss()
         aliens.draw(screen)
         #显示得分和南墙
         sb.show_score()
@@ -198,10 +210,11 @@ def update_screen(ai_settings,screen,ship,bullets,aliens,stats,play_button,sb):
         #如果游戏处于非活动状态，就绘制按钮
         if not stats.game_active:
             play_button.draw_button()
+            
         #让最近绘制的屏幕可见
         pygame.display.flip()
         
-def update_bullets(bullets,aliens,ai_settings,screen,ship,stats,sb):
+def update_bullets(bullets,aliens,ai_settings,screen,ship,stats,sb,boss):
     """更新子弹的位置，并删除已消失的子弹"""
     #更新子弹位置, 并删除已消失的子弹
     bullets.update()#用来更新子弹编组的位置，包括了速度
@@ -209,17 +222,36 @@ def update_bullets(bullets,aliens,ai_settings,screen,ship,stats,sb):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
     check_bullet_alien_cllisions(ai_settings,aliens,bullets,
-                                 screen,ship,stats,sb)
+                                 screen,ship,stats,sb,boss)
   
-def update_aliens(aliens,ai_settings,ship,screen,bullets,stats,sb):
+def update_aliens(aliens,ai_settings,ship,screen,bullets,stats,sb,boss):
     """检查是否有外星人在屏幕边缘，并更新外星人群中所有外星人的位置"""
-    check_fleet_edges(aliens,ai_settings)#对齐参数啊！！！！！！！！！！
+    check_fleet_edges(aliens,ai_settings)#对齐参数啊！
     aliens.update()
     
     #检测外星人和和飞船之间的碰撞
     if pygame.sprite.spritecollideany(ship,aliens):
-        ship_ruin(aliens,ai_settings,ship,screen,bullets,stats,sb)
+        ship_ruin(aliens,ai_settings,ship,screen,bullets,stats,sb,boss)
     
     #检查是否有外星人到达屏幕底端
-    check_aliens_bottom(ai_settings,stats,screen,ship,aliens,bullets,sb)
-    
+    check_aliens_bottom(ai_settings,stats,screen,ship,aliens,bullets,sb,boss)
+
+def update_boss(boss,screen,stats,aliens,ai_settings,ship,bullets,sb):
+    """检查boss是否在屏幕边缘，并更新其位置"""
+    if stats.level % 3 == 0:
+        boss.random_walk()        
+        boss.check_edges()
+        check_aliens_bottom(ai_settings,stats,screen,ship,aliens,
+                            bullets,sb,boss)
+        if pygame.sprite.spritecollideany(boss,bullets):
+            stats.level += 1
+            stats.score += 100
+            sb.prep_score()
+            sb.prep_level()#及时更新屏幕的等级信息需要通过此函数然后给绘制函数调用
+            #重置boss的位置为初始位置，别提了，换成函数更新就是不能成
+            boss.rect.x = ai_settings.screen_width / 2
+            boss.rect.y = 30
+            #清空子弹
+            bullets.empty()
+            #每次消灭boss后创建新的敌人群
+            create_fleet(ai_settings,screen,ship,aliens)
