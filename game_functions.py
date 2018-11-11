@@ -8,7 +8,7 @@ Created on Fri Oct 19 14:45:36 2018
 import sys
 import pygame
 import json
-
+from pygame.locals import *
 from time import sleep
 from enemy import Alien
 from weapon import Bullets
@@ -153,7 +153,7 @@ def check_bullet_alien_cllisions(ai_settings,aliens,bullets,
         sb.prep_score()
     check_high_score(stats,sb)
     #如果敌人被清空，且不是boss出场的清空，则提升游戏进度
-    if  len(aliens) == 0 and stats.level % 3 != 0:
+    if  len(aliens) == 0 and stats.level % 4 != 0:
         #清空现有子弹，加快游戏节奏，并创建一群新的外星人
         bullets.empty()#清空子弹以便新一轮进攻的火力完备
         ai_settings.increase_speed()
@@ -192,15 +192,16 @@ def change_fleet_director(ai_settings,aliens):
     ai_settings.fleet_direction *= -1
 
 def update_screen(ai_settings,screen,ship,bullets,aliens,stats,
-                  play_button,sb,boss):
+                  play_button,sb,boss,imgText):
            #每次循环时都重绘屏幕
+        cldj(stats,screen)
         screen.fill(ai_settings.bg_color)
         #在飞船和外星人后面重绘所有子弹
         for bullet in bullets.sprites():
             bullet.draw_bullet()
         ship.blitme()
         #每提升指定级数出现高富帅，小兵清空不出现
-        if stats.level % 3 == 0:
+        if stats.level % 4 == 0:
             aliens.empty()
             boss.blit_boss()
         aliens.draw(screen)
@@ -210,7 +211,7 @@ def update_screen(ai_settings,screen,ship,bullets,aliens,stats,
         #如果游戏处于非活动状态，就绘制按钮
         if not stats.game_active:
             play_button.draw_button()
-            
+            screen.blit(imgText,(100,200))
         #让最近绘制的屏幕可见
         pygame.display.flip()
         
@@ -238,7 +239,7 @@ def update_aliens(aliens,ai_settings,ship,screen,bullets,stats,sb,boss):
 
 def update_boss(boss,screen,stats,aliens,ai_settings,ship,bullets,sb):
     """检查boss是否在屏幕边缘，并更新其位置"""
-    if stats.level % 3 == 0:
+    if stats.level % 4 == 0:
         boss.random_walk()        
         boss.check_edges()
         check_aliens_bottom(ai_settings,stats,screen,ship,aliens,
@@ -255,3 +256,20 @@ def update_boss(boss,screen,stats,aliens,ai_settings,ship,bullets,sb):
             bullets.empty()
             #每次消灭boss后创建新的敌人群
             create_fleet(ai_settings,screen,ship,aliens)
+
+def print_text(font,x,y,text,color=(255,255,255)):
+    """后续将使用到的字体的设置"""
+     # 创建字体，三个参数是文本，抗锯齿，颜色
+     #built screen 创建文本窗口
+
+def cldj(stats,screen):
+    """彩蛋"""
+    if stats.level == 9:
+        cldj_image = pygame.image.load('images/13.png')
+        cldj_rect = cldj_image.get_rect()
+        cldj_rect.x,cldj_rect.y = 520, 0
+        screen.blit(cldj_image,cldj_rect)
+        pygame.display.flip()
+        pygame.time.delay(1000*9)
+        stats.level += 1
+        

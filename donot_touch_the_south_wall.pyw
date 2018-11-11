@@ -15,17 +15,18 @@ from game_stats import GameStats
 from pygame.sprite import Group
 from settings import Settings
 from assassin import Ship
- #为什么啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊
 
 
 #获取玩家电脑屏幕尺寸！！！
 
-
-#pygame.image.load(images/).convert()
+msg = """操作提示：按空格键攻击，‘←’和‘→’键控制人物方向，‘esc’键退出游戏"""
 
 def run_game():
     #初始化游戏并创建一个屏幕对象
     pygame.init()
+    #pygame.mixer.init()
+    font1 = pygame.font.SysFont("kaiti",24)
+    imgText = font1.render(msg,True,(0,0,0))
     ai_settings = Settings()
     screen = pygame.display.set_mode(
         (ai_settings.screen_width,ai_settings.screen_height),pygame.RESIZABLE)
@@ -43,6 +44,7 @@ def run_game():
     #创建外星人群
     gf.create_fleet(ai_settings,screen,ship,aliens)
     
+    #sound = pygame.mixer.Sound('C:/LOP/python_work/donot_touch_the_south_wall/music/bgm.ogg')
     #创建play按钮
     play_button = Button(ai_settings,screen,"开始游戏")    
     #开始游戏的主循环
@@ -50,7 +52,7 @@ def run_game():
         
         gf.check_events(ai_settings,screen,ship,bullets,
                         stats,play_button,aliens,sb)
-        
+        #sound.play()
         if stats.game_active:
             
             ship.update()
@@ -58,8 +60,8 @@ def run_game():
             gf.update_aliens(aliens,ai_settings,ship,screen,bullets,stats,sb,boss)
             gf.update_boss(boss,screen,stats,aliens,ai_settings,ship,bullets,sb)
         gf.update_screen(ai_settings,screen,ship,bullets,aliens,
-                         stats,play_button,sb,boss)
-        
+                         stats,play_button,sb,boss,imgText)
+        #sound.stop
         
 run_game()
     

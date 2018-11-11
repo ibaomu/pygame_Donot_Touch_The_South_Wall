@@ -16,7 +16,7 @@ class Settings():
         self.bg_color = (242,167,220)#根据对象颜色设置背景色。可以抠图吧
         self.ship_limit = 3
         #子弹设置
-        self.bullet_width = 666
+        self.bullet_width = 3
         self.bullet_height = 13
         self.bullet_color = 60,60,60 #啥颜色？
         self.bullet_allowed = 4
@@ -44,4 +44,6 @@ class Settings():
         self.alien_speed_factor *= self.speedup_scale
         self.bullet_speed_factor *= self.speedup_scale
         
-        self.alien_points = int(self.alien_points * self.score_scale)        
+        self.alien_points = int(self.alien_points * self.score_scale)
+
+        
